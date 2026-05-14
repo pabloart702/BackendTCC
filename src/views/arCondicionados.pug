@@ -1,0 +1,23 @@
+extends layouts/main.pug
+
+block content
+  h1 Lista de Ares-Condicionados
+  if arCondicionados && arCondicionados.length > 0
+    each ac in arCondicionados
+      div.card
+        h3= ac.marca_modelo
+        p
+          strong ID: 
+          span= ac.id
+        p
+          strong ID da Sala: 
+          span= ac.sala_id
+        p
+          strong Status: 
+          span= ac.status
+        if ac.temperatura_atual
+          p
+            strong Temperatura Atual: 
+            span #{ac.temperatura_atual}°C
+  else
+    p.empty-msg Nenhum ar-condicionado cadastrado no momento.

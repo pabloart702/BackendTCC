@@ -1,0 +1,22 @@
+extends layouts/main.pug
+
+block content
+  h1 Lista de Salas
+  if salas && salas.length > 0
+    each sala in salas
+      div.card
+        h3= sala.nome_sala
+        p
+          strong Setor: 
+          span= sala.setor
+        p
+          strong Andar: 
+          span= sala.andar
+        p
+          strong Corredor: 
+          span= sala.corredor
+        p
+          strong Capacidade: 
+          span #{sala.capacidade} pessoas
+  else
+    p.empty-msg Nenhuma sala cadastrada no momento.

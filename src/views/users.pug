@@ -1,0 +1,16 @@
+extends layouts/main.pug
+
+block content
+  h1 Lista de Usuários
+  if users && users.length > 0
+    each user in users
+      div.card
+        h3= user.nome
+        p
+          strong Email: 
+          span= user.email
+        p
+          strong Papel: 
+          span= user.papel
+  else
+    p.empty-msg Nenhum usuário cadastrado no momento.

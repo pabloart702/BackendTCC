@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend da minha aplicação web de controle de arcondicionados",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "dev": "nodemon --ignore src/data/db.json src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-validation": "^4.1.1",
+    "express-validator": "^7.3.2",
+    "lowdb": "^7.0.1",
+    "nodemon": "^3.1.14",
+    "pug": "^3.0.4"
+  }
+}
