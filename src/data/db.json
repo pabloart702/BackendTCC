@@ -11,8 +11,8 @@
     {
       "id": "1778715232414",
       "nome": "Moura",
-      "email": "[EMAIL_ADDRESS]",
-      "senha": "[PASSWORD]",
+      "email": "moura@teste.com",
+      "senha": "senha_super_segura",
       "papel": "USER",
       "data_criacao": "2026-05-13T10:00:00.000Z"
     }
