@@ -3,16 +3,16 @@
     {
       "id": "1778627505131",
       "nome": "Pablo",
-      "email": "pablo_filho@teste.com",
+      "email": "pablo_art@teste.com",
       "senha": "senha_segura",
       "papel": "ADMIN",
       "data_criacao": "2026-05-12T10:00:00.000Z"
     },
     {
       "id": "1778715232414",
-      "nome": "Leticia",
-      "email": "leticia_rayane@teste.com",
-      "senha": "senha_super_segura",
+      "nome": "Moura",
+      "email": "[EMAIL_ADDRESS]",
+      "senha": "[PASSWORD]",
       "papel": "USER",
       "data_criacao": "2026-05-13T10:00:00.000Z"
     }
