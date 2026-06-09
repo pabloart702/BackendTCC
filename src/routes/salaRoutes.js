@@ -4,13 +4,113 @@ import { regrasValidacaoSala, regrasValidacaoSalaParcial } from '../validators/s
 
 const router = Router();
 
+
+/**
+ * @swagger
+ * /api/salas:
+ *   get:
+ *     summary: Retorna lista de salas
+ *     responses:
+ *       200:
+ *         description: Lista de salas
+ */
 router.get('/', SalaController.listar);
+
+/**
+ * @swagger
+ * /api/salas/{id}:
+ *   get:
+ *     summary: Busca uma sala pelo ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sala encontrada
+ */
 router.get("/:id", SalaController.buscar);
+
+/**
+ * @swagger
+ * /api/salas/{id}:
+ *   patch:
+ *     summary: Atualiza parcialmente uma sala
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Sala atualizada
+ */
 router.patch("/:id", regrasValidacaoSalaParcial, SalaController.atualizarParcialmente);
+
+/**
+ * @swagger
+ * /api/salas/{id}:
+ *   delete:
+ *     summary: Deleta uma sala
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Sala deletada
+ */
 router.delete("/:id", SalaController.deletar);
 
-// Modificam todos os dados do ar condicionado, logo precisam de mais validações
+/**
+ * @swagger
+ * /api/salas:
+ *   post:
+ *     summary: Cria uma nova sala
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: Sala criada
+ */
 router.post("/", regrasValidacaoSala, SalaController.criar);
+
+/**
+ * @swagger
+ * /api/salas/{id}:
+ *   put:
+ *     summary: Atualiza totalmente uma sala
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Sala atualizada
+ */
 router.put("/:id", regrasValidacaoSala, SalaController.atualizar);
 
 export default router;

@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger.js';
 import salaRoutes from './routes/salaRoutes.js';
 import arCondicionadoRoutes from './routes/arCondicionadoRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -25,6 +27,9 @@ app.use('/api/salas', salaRoutes);
 app.use('/api/arCondicionados', arCondicionadoRoutes);
 app.use('/api/users', userRoutes);
 app.use('/web', webRoutes);
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use((req, res) => {
     res.status(404).json({ message: "Rota não encontrada" });

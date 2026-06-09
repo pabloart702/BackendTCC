@@ -4,6 +4,16 @@ import { regrasValidacaoArCondicionado, regrasValidacaoArCondicionadoParcial } f
 
 const router = Router();
 
+
+/**
+ * @swagger
+ * /api/arCondicionados:
+ *   get:
+ *     summary: Retorna lista de ar condicionados
+ *     responses:
+ *       200:
+ *         description: Lista de ar condicionados
+ */
 router.get('/', ArCondicionadoController.listar);
 
 // Rotas estáticas (precisam vir ANTES das dinâmicas como /:id)
@@ -14,12 +24,101 @@ router.get('/interface-pug', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /api/arCondicionados/{id}:
+ *   get:
+ *     summary: Busca um ar condicionado pelo ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Ar condicionado encontrado
+ */
 router.get("/:id", ArCondicionadoController.buscar);
+
+/**
+ * @swagger
+ * /api/arCondicionados/{id}:
+ *   patch:
+ *     summary: Atualiza parcialmente um ar condicionado
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Ar condicionado atualizado
+ */
 router.patch("/:id", regrasValidacaoArCondicionadoParcial, ArCondicionadoController.atualizarParcialmente);
+
+/**
+ * @swagger
+ * /api/arCondicionados/{id}:
+ *   delete:
+ *     summary: Deleta um ar condicionado
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Ar condicionado deletado
+ */
 router.delete("/:id", ArCondicionadoController.deletar);
 
-// Modificam todos os dados do ar condicionado, logo precisam de mais validações
+/**
+ * @swagger
+ * /api/arCondicionados:
+ *   post:
+ *     summary: Cria um novo ar condicionado
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: Ar condicionado criado
+ */
 router.post("/", regrasValidacaoArCondicionado, ArCondicionadoController.criar);
+
+/**
+ * @swagger
+ * /api/arCondicionados/{id}:
+ *   put:
+ *     summary: Atualiza totalmente um ar condicionado
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Ar condicionado atualizado
+ */
 router.put("/:id", regrasValidacaoArCondicionado, ArCondicionadoController.atualizar);
 
 
