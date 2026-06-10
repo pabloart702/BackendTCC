@@ -6,8 +6,10 @@ import swaggerSpec from './swagger.js';
 import salaRoutes from './routes/salaRoutes.js';
 import arCondicionadoRoutes from './routes/arCondicionadoRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import webRoutes from './routes/webRoutes.js';
 import { globalErrorHandler } from './middleware/errorMiddleware.js';
+import { authMiddleware } from './middleware/authMiddleware.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,13 +25,17 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 
 // Rotas
-app.use('/api/salas', salaRoutes);
-app.use('/api/arCondicionados', arCondicionadoRoutes);
-app.use('/api/users', userRoutes);
+// Rotas abertas
+app.use('/api/auth', authRoutes);
 app.use('/web', webRoutes);
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Rotas Protegidas
+app.use('/api/salas', authMiddleware, salaRoutes);
+app.use('/api/arCondicionados', authMiddleware, arCondicionadoRoutes);
+app.use('/api/users', authMiddleware, userRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ message: "Rota não encontrada" });
