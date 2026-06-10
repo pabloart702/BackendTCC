@@ -1,6 +1,7 @@
 import { Router } from "express";
 import UserController from "../controllers/userController.js";
 import { regrasValidacaoUser, regrasValidacaoUserParcial } from '../validators/userValidators.js'
+import { authorize } from '../middleware/permissionMiddleware.js';
 
 const router = Router();
 
@@ -54,7 +55,7 @@ router.get("/:id", UserController.buscar);
  *       200:
  *         description: Usuário atualizado
  */
-router.patch("/:id", regrasValidacaoUserParcial, UserController.atualizarParcialmente);
+router.patch("/:id", authorize('ADMIN'), regrasValidacaoUserParcial, UserController.atualizarParcialmente);
 
 /**
  * @swagger
@@ -71,7 +72,7 @@ router.patch("/:id", regrasValidacaoUserParcial, UserController.atualizarParcial
  *       204:
  *         description: Usuário deletado
  */
-router.delete("/:id", UserController.deletar);
+router.delete("/:id", authorize('ADMIN'), UserController.deletar);
 
 /**
  * @swagger
@@ -88,7 +89,7 @@ router.delete("/:id", UserController.deletar);
  *       201:
  *         description: Usuário criado
  */
-router.post("/", regrasValidacaoUser, UserController.criar);
+router.post("/", authorize('ADMIN'), regrasValidacaoUser, UserController.criar);
 
 /**
  * @swagger
@@ -111,6 +112,6 @@ router.post("/", regrasValidacaoUser, UserController.criar);
  *       200:
  *         description: Usuário atualizado
  */
-router.put("/:id", regrasValidacaoUser, UserController.atualizar);
+router.put("/:id", authorize('ADMIN'), regrasValidacaoUser, UserController.atualizar);
 
 export default router;

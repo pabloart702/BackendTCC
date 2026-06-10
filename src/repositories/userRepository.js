@@ -19,7 +19,7 @@ class UserRepository {
             nome: user.nome,
             email: user.email,
             senha: user.senha,
-            papel: user.papel,
+            papeis: user.papeis,
             data_criacao: user.data_criacao
         };
         db.data.users.push(novoUser);
@@ -33,7 +33,7 @@ class UserRepository {
         userAtualizado.nome = user.nome;
         userAtualizado.email = user.email;
         userAtualizado.senha = user.senha;
-        userAtualizado.papel = user.papel;
+        userAtualizado.papeis = user.papeis;
         userAtualizado.data_criacao = user.data_criacao;
         await db.write();
         return userAtualizado;

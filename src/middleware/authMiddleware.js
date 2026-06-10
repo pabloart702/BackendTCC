@@ -4,22 +4,30 @@ export const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
     
     if (!authHeader) {
-        return res.status(401).json({ message: "Token não fornecido." });
+        const error = new Error("Token não fornecido.");
+        error.statusCode = 401;
+        return next(error);
     }
     
     const parts = authHeader.split(' ');
     if (parts.length !== 2) {
-        return res.status(401).json({ message: "Erro no formato do token." });
+        const error = new Error("Erro no formato do token.");
+        error.statusCode = 401;
+        return next(error);
     }
     
     const [scheme, token] = parts;
     if (!/^Bearer$/i.test(scheme)) {
-        return res.status(401).json({ message: "Erro no formato do token." });
+        const error = new Error("Erro no formato do token.");
+        error.statusCode = 401;
+        return next(error);
     }
     
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(401).json({ mensagem: "Token inválido ou expirado." });
+            const error = new Error("Token inválido ou expirado.");
+            error.statusCode = 401;
+            return next(error);
         }
 
         // Se o token for válido, 'decoded' contém o payload (userId, login)

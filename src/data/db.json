@@ -5,7 +5,9 @@
       "nome": "Pablo",
       "email": "pablo_art@teste.com",
       "senha": "senha_segura",
-      "papel": "ADMIN",
+      "papeis": [
+        "ADMIN"
+      ],
       "data_criacao": "2026-05-12T10:00:00.000Z"
     },
     {
@@ -13,7 +15,19 @@
       "nome": "Moura",
       "email": "moura@teste.com",
       "senha": "senha_super_segura",
-      "papel": "USER",
+      "papeis": [
+        "USER"
+      ],
+      "data_criacao": "2026-05-13T10:00:00.000Z"
+    },
+    {
+      "id": "1781053543695",
+      "nome": "Daniel",
+      "email": "daniel@teste.com",
+      "senha": "senha_super_segura_daniel",
+      "papeis": [
+        "USER"
+      ],
       "data_criacao": "2026-05-13T10:00:00.000Z"
     }
   ],

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import SalaController from '../controllers/salaController.js';
 import { regrasValidacaoSala, regrasValidacaoSalaParcial } from '../validators/salaValidators.js'
+import { authorize } from '../middleware/permissionMiddleware.js';
 
 const router = Router();
 
@@ -54,7 +55,7 @@ router.get("/:id", SalaController.buscar);
  *       200:
  *         description: Sala atualizada
  */
-router.patch("/:id", regrasValidacaoSalaParcial, SalaController.atualizarParcialmente);
+router.patch("/:id", authorize('ADMIN'), regrasValidacaoSalaParcial, SalaController.atualizarParcialmente);
 
 /**
  * @swagger
@@ -71,7 +72,7 @@ router.patch("/:id", regrasValidacaoSalaParcial, SalaController.atualizarParcial
  *       204:
  *         description: Sala deletada
  */
-router.delete("/:id", SalaController.deletar);
+router.delete("/:id", authorize('ADMIN'), SalaController.deletar);
 
 /**
  * @swagger
@@ -88,7 +89,7 @@ router.delete("/:id", SalaController.deletar);
  *       201:
  *         description: Sala criada
  */
-router.post("/", regrasValidacaoSala, SalaController.criar);
+router.post("/", authorize('ADMIN'), regrasValidacaoSala, SalaController.criar);
 
 /**
  * @swagger
@@ -111,6 +112,6 @@ router.post("/", regrasValidacaoSala, SalaController.criar);
  *       200:
  *         description: Sala atualizada
  */
-router.put("/:id", regrasValidacaoSala, SalaController.atualizar);
+router.put("/:id", authorize('ADMIN'), regrasValidacaoSala, SalaController.atualizar);
 
 export default router;

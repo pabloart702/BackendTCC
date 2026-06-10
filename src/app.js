@@ -37,8 +37,10 @@ app.use('/api/salas', authMiddleware, salaRoutes);
 app.use('/api/arCondicionados', authMiddleware, arCondicionadoRoutes);
 app.use('/api/users', authMiddleware, userRoutes);
 
-app.use((req, res) => {
-    res.status(404).json({ message: "Rota não encontrada" });
+app.use((req, res, next) => {
+    const error = new Error("Rota não encontrada");
+    error.statusCode = 404;
+    next(error);
 });
 
 app.use(globalErrorHandler);

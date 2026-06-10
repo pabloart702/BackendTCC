@@ -7,19 +7,23 @@ class AuthController {
             const { email, senha } = req.body;
 
             if (!email || !senha) {
-                return res.status(400).json({ message: "E-mail e senha são obrigatórios." });
+                const error = new Error("E-mail e senha são obrigatórios.");
+                error.statusCode = 400;
+                throw error;
             }
             
             const users = await UserRepository.listar();
             const user = users.find(u => u.email === email && u.senha === senha);
             
             if (!user) {
-                return res.status(401).json({ message: "E-mail ou senha incorretos." });
+                const error = new Error("E-mail ou senha incorretos.");
+                error.statusCode = 401;
+                throw error;
             }
             
             // Gerar Token JWT
             const token = jwt.sign(
-                { userId: user.id, email: user.email, papel: user.papel },
+                { userId: user.id, email: user.email, papeis: user.papeis },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );

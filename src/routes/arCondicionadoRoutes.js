@@ -1,6 +1,7 @@
 import { Router } from "express";
 import ArCondicionadoController from '../controllers/arCondicionadoController.js'
 import { regrasValidacaoArCondicionado, regrasValidacaoArCondicionadoParcial } from '../validators/arCondicionadoValidators.js'
+import { authorize } from '../middleware/permissionMiddleware.js';
 
 const router = Router();
 
@@ -62,7 +63,7 @@ router.get("/:id", ArCondicionadoController.buscar);
  *       200:
  *         description: Ar condicionado atualizado
  */
-router.patch("/:id", regrasValidacaoArCondicionadoParcial, ArCondicionadoController.atualizarParcialmente);
+router.patch("/:id", authorize('ADMIN', 'USER'), regrasValidacaoArCondicionadoParcial, ArCondicionadoController.atualizarParcialmente);
 
 /**
  * @swagger
@@ -79,7 +80,7 @@ router.patch("/:id", regrasValidacaoArCondicionadoParcial, ArCondicionadoControl
  *       204:
  *         description: Ar condicionado deletado
  */
-router.delete("/:id", ArCondicionadoController.deletar);
+router.delete("/:id", authorize('ADMIN'), ArCondicionadoController.deletar);
 
 /**
  * @swagger
@@ -96,7 +97,7 @@ router.delete("/:id", ArCondicionadoController.deletar);
  *       201:
  *         description: Ar condicionado criado
  */
-router.post("/", regrasValidacaoArCondicionado, ArCondicionadoController.criar);
+router.post("/", authorize('ADMIN'), regrasValidacaoArCondicionado, ArCondicionadoController.criar);
 
 /**
  * @swagger
@@ -119,7 +120,7 @@ router.post("/", regrasValidacaoArCondicionado, ArCondicionadoController.criar);
  *       200:
  *         description: Ar condicionado atualizado
  */
-router.put("/:id", regrasValidacaoArCondicionado, ArCondicionadoController.atualizar);
+router.put("/:id", authorize('ADMIN', 'USER'), regrasValidacaoArCondicionado, ArCondicionadoController.atualizar);
 
 
 export default router;

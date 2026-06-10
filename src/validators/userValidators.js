@@ -18,10 +18,12 @@ export const regrasValidacaoUser = [
         .trim()
         .notEmpty().withMessage('A senha é obrigatória')
         .isLength({ min: 6 }).withMessage('A senha deve ter pelo menos 6 caracteres'),
-    body('papel')
-        .isString().withMessage('O papel deve ser um texto')
-        .trim()
-        .notEmpty().withMessage('O papel é obrigatório'),
+    body('papeis')
+        .isArray().withMessage('Os papéis devem ser uma lista (array)')
+        .notEmpty().withMessage('Os papéis são obrigatórios'),
+    body('papeis.*')
+        .isString().withMessage('Cada papel deve ser um texto')
+        .trim(),
     body('data_criacao')
         .isString().withMessage('A data de criação deve ser um texto')
         .trim()
@@ -50,11 +52,13 @@ export const regrasValidacaoUserParcial = [
         .trim()
         .notEmpty().withMessage('A senha não pode estar vazia')
         .isLength({ min: 6 }).withMessage('A senha deve ter pelo menos 6 caracteres'),
-    body('papel')
+    body('papeis')
         .optional()
-        .isString().withMessage('O papel deve ser um texto')
-        .trim()
-        .notEmpty().withMessage('O papel não pode estar vazio'),
+        .isArray().withMessage('Os papéis devem ser uma lista (array)'),
+    body('papeis.*')
+        .optional()
+        .isString().withMessage('Cada papel deve ser um texto')
+        .trim(),
     body('data_criacao')
         .optional()
         .isString().withMessage('A data de criação deve ser um texto')

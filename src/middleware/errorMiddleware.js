@@ -4,10 +4,10 @@ import { validationResult } from 'express-validator';
 export const verificarErros = (req, res, next) => {
     const erros = validationResult(req);
     if (!erros.isEmpty()) {
-        return res.status(400).json({
-            sucesso: false,
-            erros: erros.array()
-        });
+        const error = new Error("Erro de validação dos dados enviados.");
+        error.statusCode = 400;
+        error.errosDetalhados = erros.array();
+        return next(error);
     }
     next();
 };
@@ -19,10 +19,16 @@ export const globalErrorHandler = (error, req, res, next) => {
 
     const statusCode = error.statusCode || 500;
 
-    // Responde com o erro formatado em JSON
-    res.status(statusCode).json({
+    const response = {
         status: 'error',
         statusCode: statusCode,
         message: error.statusCode ? error.message : 'Ocorreu um erro interno no servidor'
-    });
+    };
+
+    if (error.errosDetalhados) {
+        response.erros = error.errosDetalhados;
+    }
+
+    // Responde com o erro formatado em JSON
+    res.status(statusCode).json(response);
 };
