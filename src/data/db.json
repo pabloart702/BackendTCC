@@ -4,7 +4,7 @@
       "id": "1778627505131",
       "nome": "Pablo",
       "email": "pablo_art@teste.com",
-      "senha": "senha_segura",
+      "senha": "$2b$10$l7LuoG8RZjIhYL5OPJCppOq16gj1ivI629F/4pT/JVF2XLpVOORT6",
       "papeis": [
         "ADMIN"
       ],
@@ -14,7 +14,7 @@
       "id": "1778715232414",
       "nome": "Moura",
       "email": "moura@teste.com",
-      "senha": "senha_super_segura",
+      "senha": "$2b$10$q.M1/0E8uS2oQIRUgRM3AebnmL9fFLQEMrRYMeqXRSwRC0eSEcG0K",
       "papeis": [
         "USER"
       ],
@@ -24,9 +24,19 @@
       "id": "1781053543695",
       "nome": "Daniel",
       "email": "daniel@teste.com",
-      "senha": "senha_super_segura_daniel",
+      "senha": "$2b$10$YoW6l7bywEUrsLbzPFfFseF4q09DaMeIpLooVChkgxzSP6qZePby6",
       "papeis": [
         "USER"
+      ],
+      "data_criacao": "2026-05-13T10:00:00.000Z"
+    },
+    {
+      "id": "1781095412440",
+      "nome": "joao da zoeira",
+      "email": "zoeirabr@teste.com",
+      "senha": "$2b$10$zsccFDDv7sSRlZSUOHRdNeG7ybbf2.g8vjjV6g1/JQBg16GfzkUFW",
+      "papeis": [
+        "ADMIN"
       ],
       "data_criacao": "2026-05-13T10:00:00.000Z"
     }

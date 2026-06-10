@@ -1,5 +1,6 @@
 import UserRepository from '../repositories/userRepository.js';
 import UserDto from '../dtos/userDto.js';
+import bcrypt from 'bcrypt';
 
 class UserService {
     static async listar() {
@@ -30,6 +31,9 @@ class UserService {
             throw error;
         }
 
+        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+        userDados.senha = await bcrypt.hash(userDados.senha, saltRounds);
+
         const userCriado = await UserRepository.criar(userDados);
         return new UserDto(userCriado);
     }
@@ -52,6 +56,9 @@ class UserService {
             error.statusCode = 400;
             throw error;
         }
+
+        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+        userDados.senha = await bcrypt.hash(userDados.senha, saltRounds);
 
         const userAtualizado = await UserRepository.atualizar(id, userDados);
         return new UserDto(userAtualizado);
@@ -76,6 +83,11 @@ class UserService {
                 error.statusCode = 400;
                 throw error;
             }
+        }
+
+        if (userDados.senha) {
+            const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+            userDados.senha = await bcrypt.hash(userDados.senha, saltRounds);
         }
 
         const userAtualizado = await UserRepository.atualizarParcialmente(id, userDados);

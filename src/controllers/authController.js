@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import UserRepository from '../repositories/userRepository.js';
 
 class AuthController {
@@ -13,9 +14,16 @@ class AuthController {
             }
             
             const users = await UserRepository.listar();
-            const user = users.find(u => u.email === email && u.senha === senha);
+            const user = users.find(u => u.email === email);
             
             if (!user) {
+                const error = new Error("E-mail ou senha incorretos.");
+                error.statusCode = 401;
+                throw error;
+            }
+            
+            const senhaValida = await bcrypt.compare(senha, user.senha);
+            if (!senhaValida) {
                 const error = new Error("E-mail ou senha incorretos.");
                 error.statusCode = 401;
                 throw error;
