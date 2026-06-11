@@ -25,6 +25,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 
 // Rotas
+// Rota de Health Check (Raiz)
+app.get('/', (req, res) => {
+    res.json({ message: "API online e rodando na nuvem! 🚀" });
+});
+
 // Rotas abertas
 app.use('/api/auth', authRoutes);
 app.use('/web', webRoutes);
