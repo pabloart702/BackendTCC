@@ -3,13 +3,64 @@ html(lang="pt-BR")
   head
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    title= title || 'Sistema de Ar Condicionado'
+    title= title || 'Sistema'
     style.
-      body { font-family: sans-serif; background: #f4f4f9; padding: 20px; color: #333; }
+      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; padding: 20px; color: #333; margin: 0; }
       h1 { color: #2c3e50; }
-      .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-      .card h3 { margin-top: 0; color: #34495e; }
-      .card p { margin: 5px 0; }
+      .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+      .card h3 { margin-top: 0; color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+      .card p { margin: 8px 0; }
       .empty-msg { color: #7f8c8d; font-style: italic; }
+      .admin-only { display: none; }
+      .btn { padding: 8px 12px; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+      .btn-primary { background: #3498db; }
+      .btn-danger { background: #e74c3c; }
+      .btn-success { background: #2ecc71; margin-bottom: 15px; }
+      .nav { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; display: flex; gap: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+      .nav a { text-decoration: none; color: #2c3e50; font-weight: bold; padding: 5px 10px; border-radius: 4px; transition: background 0.3s; }
+      .nav a:hover { background: #ecf0f1; }
+      input, select, button { padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+      .login-container { max-width: 350px; margin: 80px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+      .container { max-width: 900px; margin: 0 auto; }
   body
-    block content
+    div.container
+      if title !== 'Login'
+        div.nav
+          a(href="/web/salas") Salas
+          a(href="/web/ar-condicionados") Ar-Condicionados
+          a(href="/web/users") Usuários
+          a(href="#" onclick="logout()" style="color: #e74c3c; margin-left: auto;") Sair
+
+      block content
+
+    script.
+      function parseJwt(token) {
+        try {
+          return JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem('token');
+        window.location.href = '/web/login';
+      }
+
+      const isLoginPage = window.location.pathname.includes('/login');
+      const token = localStorage.getItem('token');
+      
+      // Se não tem token e não está na tela de login, expulsa para o login
+      if (!isLoginPage && !token) {
+        window.location.href = '/web/login';
+      }
+
+      // Se tem token e está numa página logada, checa as permissões
+      if (token && !isLoginPage) {
+        const payload = parseJwt(token);
+        if (payload && payload.papeis && payload.papeis.includes('ADMIN')) {
+          document.querySelectorAll('.admin-only').forEach(el => {
+            el.style.display = 'inline-block';
+          });
+        }
+      }

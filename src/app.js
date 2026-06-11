@@ -27,7 +27,7 @@ app.use(express.json());
 // Rotas
 // Rota de Health Check (Raiz)
 app.get('/', (req, res) => {
-    res.json({ message: "API online e rodando na nuvem! 🚀" });
+    res.redirect('/web/login');
 });
 
 // Rotas abertas

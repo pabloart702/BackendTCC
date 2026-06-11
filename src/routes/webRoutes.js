@@ -3,6 +3,7 @@ import WebController from '../controllers/webController.js';
 
 const router = Router();
 
+router.get('/login', WebController.login);
 router.get('/ar-condicionados', WebController.listarArCondicionados);
 router.get('/salas', WebController.listarSalas);
 router.get('/users', WebController.listarUsers);

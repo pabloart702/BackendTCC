@@ -2,10 +2,27 @@ extends layouts/main.pug
 
 block content
   h1 Lista de Salas
+  button.btn.btn-success.admin-only(onclick="mostrarFormSala()") + Nova Sala
+  
+  div#formSala(style="display:none; background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px;")
+    h3#formSalaTitle Nova Sala
+    input(type="hidden" id="salaId")
+    input(type="text" id="setor" placeholder="Setor")
+    input(type="text" id="andar" placeholder="Andar")
+    input(type="text" id="corredor" placeholder="Corredor")
+    input(type="text" id="nome_sala" placeholder="Nome da Sala")
+    input(type="text" id="capacidade" placeholder="Capacidade")
+    input(type="text" id="endereco_mac_esp32" placeholder="Endereço MAC ESP32")
+    button.btn.btn-primary(onclick="salvarSala()") Salvar
+    button.btn.btn-danger(onclick="document.getElementById('formSala').style.display='none'") Cancelar
+
   if salas && salas.length > 0
     each sala in salas
       div.card
         h3= sala.nome_sala
+        p(style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;")
+          strong ID da Sala: 
+          span= sala.id
         p
           strong Setor: 
           span= sala.setor
@@ -18,5 +35,69 @@ block content
         p
           strong Capacidade: 
           span #{sala.capacidade} pessoas
+        
+        div(style="margin-top: 15px;")
+          button.btn.btn-primary.admin-only(onclick=`editarSala('${sala.id}', '${sala.setor}', '${sala.andar}', '${sala.corredor}', '${sala.nome_sala}', '${sala.capacidade}', '${sala.endereco_mac_esp32}')`) Editar
+          button.btn.btn-danger.admin-only(onclick=`deletarSala('${sala.id}')`) Excluir
   else
     p.empty-msg Nenhuma sala cadastrada no momento.
+
+  script.
+    function mostrarFormSala() {
+      document.getElementById('formSalaTitle').innerText = 'Nova Sala';
+      document.getElementById('salaId').value = '';
+      document.getElementById('setor').value = '';
+      document.getElementById('andar').value = '';
+      document.getElementById('corredor').value = '';
+      document.getElementById('nome_sala').value = '';
+      document.getElementById('capacidade').value = '';
+      document.getElementById('endereco_mac_esp32').value = '';
+      document.getElementById('formSala').style.display = 'block';
+    }
+
+    function editarSala(id, setor, andar, corredor, nome_sala, capacidade, mac) {
+      document.getElementById('formSalaTitle').innerText = 'Editar Sala';
+      document.getElementById('salaId').value = id;
+      document.getElementById('setor').value = setor;
+      document.getElementById('andar').value = andar;
+      document.getElementById('corredor').value = corredor;
+      document.getElementById('nome_sala').value = nome_sala;
+      document.getElementById('capacidade').value = capacidade;
+      document.getElementById('endereco_mac_esp32').value = mac;
+      document.getElementById('formSala').style.display = 'block';
+    }
+
+    async function salvarSala() {
+      const id = document.getElementById('salaId').value;
+      const data = {
+        setor: document.getElementById('setor').value,
+        andar: document.getElementById('andar').value,
+        corredor: document.getElementById('corredor').value,
+        nome_sala: document.getElementById('nome_sala').value,
+        capacidade: document.getElementById('capacidade').value,
+        endereco_mac_esp32: document.getElementById('endereco_mac_esp32').value
+      };
+      
+      const token = localStorage.getItem('token');
+      const method = id ? 'PATCH' : 'POST';
+      const url = id ? `/api/salas/${id}` : '/api/salas';
+
+      const res = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) window.location.reload();
+      else alert('Erro ao salvar sala.');
+    }
+
+    async function deletarSala(id) {
+      if (!confirm('Deseja excluir esta sala?')) return;
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/salas/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) window.location.reload();
+      else alert('Erro ao excluir sala.');
+    }

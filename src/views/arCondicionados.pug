@@ -2,6 +2,22 @@ extends layouts/main.pug
 
 block content
   h1 Lista de Ares-Condicionados
+  button.btn.btn-success.admin-only(onclick="mostrarFormAC()") + Novo Ar-Condicionado
+
+  div#formAC(style="display:none; background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px;")
+    h3#formACTitle Novo Ar-Condicionado
+    input(type="hidden" id="acId")
+    input(type="text" id="sala_id" placeholder="ID da Sala (ObjectId)")
+    input(type="text" id="marca_modelo" placeholder="Marca/Modelo")
+    input(type="text" id="status" placeholder="Status")
+    input(type="number" id="temperatura_atual" placeholder="Temperatura Atual")
+    input(type="text" id="codigo_ir_ligar" placeholder="IR Ligar")
+    input(type="text" id="codigo_ir_desligar" placeholder="IR Desligar")
+    input(type="text" id="codigo_ir_temp_23" placeholder="IR Temp 23")
+    input(type="text" id="codigo_ir_modo_cool" placeholder="IR Modo Cool")
+    button.btn.btn-primary(onclick="salvarAC()") Salvar
+    button.btn.btn-danger(onclick="document.getElementById('formAC').style.display='none'") Cancelar
+
   if arCondicionados && arCondicionados.length > 0
     each ac in arCondicionados
       div.card
@@ -19,5 +35,75 @@ block content
           p
             strong Temperatura Atual: 
             span #{ac.temperatura_atual}°C
+
+        div(style="margin-top: 15px;")
+          button.btn.btn-primary.admin-only(onclick=`editarAC('${ac.id}', '${ac.sala_id}', '${ac.marca_modelo}', '${ac.status}', '${ac.temperatura_atual}', '${ac.codigo_ir_ligar}', '${ac.codigo_ir_desligar}', '${ac.codigo_ir_temp_23}', '${ac.codigo_ir_modo_cool}')`) Editar
+          button.btn.btn-danger.admin-only(onclick=`deletarAC('${ac.id}')`) Excluir
   else
     p.empty-msg Nenhum ar-condicionado cadastrado no momento.
+
+  script.
+    function mostrarFormAC() {
+      document.getElementById('formACTitle').innerText = 'Novo Ar-Condicionado';
+      document.getElementById('acId').value = '';
+      document.getElementById('sala_id').value = '';
+      document.getElementById('marca_modelo').value = '';
+      document.getElementById('status').value = '';
+      document.getElementById('temperatura_atual').value = '';
+      document.getElementById('codigo_ir_ligar').value = '';
+      document.getElementById('codigo_ir_desligar').value = '';
+      document.getElementById('codigo_ir_temp_23').value = '';
+      document.getElementById('codigo_ir_modo_cool').value = '';
+      document.getElementById('formAC').style.display = 'block';
+    }
+
+    function editarAC(id, sala_id, marca, status, temp, ligar, desligar, temp23, cool) {
+      document.getElementById('formACTitle').innerText = 'Editar Ar-Condicionado';
+      document.getElementById('acId').value = id;
+      document.getElementById('sala_id').value = sala_id;
+      document.getElementById('marca_modelo').value = marca;
+      document.getElementById('status').value = status;
+      document.getElementById('temperatura_atual').value = temp;
+      document.getElementById('codigo_ir_ligar').value = ligar;
+      document.getElementById('codigo_ir_desligar').value = desligar;
+      document.getElementById('codigo_ir_temp_23').value = temp23;
+      document.getElementById('codigo_ir_modo_cool').value = cool;
+      document.getElementById('formAC').style.display = 'block';
+    }
+
+    async function salvarAC() {
+      const id = document.getElementById('acId').value;
+      const data = {
+        sala_id: document.getElementById('sala_id').value,
+        marca_modelo: document.getElementById('marca_modelo').value,
+        status: document.getElementById('status').value,
+        temperatura_atual: parseInt(document.getElementById('temperatura_atual').value),
+        codigo_ir_ligar: document.getElementById('codigo_ir_ligar').value,
+        codigo_ir_desligar: document.getElementById('codigo_ir_desligar').value,
+        codigo_ir_temp_23: document.getElementById('codigo_ir_temp_23').value,
+        codigo_ir_modo_cool: document.getElementById('codigo_ir_modo_cool').value
+      };
+      
+      const token = localStorage.getItem('token');
+      const method = id ? 'PATCH' : 'POST';
+      const url = id ? `/api/arCondicionados/${id}` : '/api/arCondicionados';
+
+      const res = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) window.location.reload();
+      else alert('Erro ao salvar ar-condicionado.');
+    }
+
+    async function deletarAC(id) {
+      if (!confirm('Deseja excluir este ar-condicionado?')) return;
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/arCondicionados/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) window.location.reload();
+      else alert('Erro ao excluir ar-condicionado.');
+    }

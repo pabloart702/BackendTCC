@@ -3,6 +3,10 @@ import SalaService from '../services/salaService.js';
 import UserService from '../services/userService.js';
 
 class WebController {
+    static login(req, res) {
+        res.render('login', { title: 'Login' });
+    }
+
     static async listarArCondicionados(req, res, next) {
         try {
             const arCondicionados = await ArCondicionadoService.listar();
