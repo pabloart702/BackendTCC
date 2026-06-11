@@ -49,7 +49,7 @@ class SalaService {
         // Não cadastra salas duplicadas
         const salasDb = await SalaRepository.listar();
         const salaDuplicada = salasDb.find(
-            s => String(s.id) !== String(id) && // Ignora a própria sala sendo atualizada
+            s => String(s._id) !== String(id) && // Ignora a própria sala sendo atualizada
                 s.setor === salaDados.setor &&
                 s.andar === salaDados.andar &&
                 s.nome_sala === salaDados.nome_sala
@@ -81,7 +81,7 @@ class SalaService {
         // Não cadastra salas duplicadas
         const salasDb = await SalaRepository.listar();
         const salaDuplicada = salasDb.find(
-            s => String(s.id) !== String(id) &&
+            s => String(s._id) !== String(id) &&
                 s.setor === setorFinal &&
                 s.andar === andarFinal &&
                 s.nome_sala === nomeSalaFinal

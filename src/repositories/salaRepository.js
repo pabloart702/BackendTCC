@@ -1,60 +1,23 @@
-import db from '../config/database.js'
+import Sala from '../models/salaModel.js';
 
 class SalaRepository {
-
     static async listar() {
-        await db.read();
-        return db.data.salas;
+        return await Sala.find();
     }
-
     static async buscar(id) {
-        await db.read();
-        return db.data.salas.find(sala => sala.id === id);
+        return await Sala.findById(id);
     }
-
     static async criar(sala) {
-        await db.read();
-        const novaSala = {
-            id: Date.now().toString(),
-            setor: sala.setor,
-            andar: sala.andar,
-            corredor: sala.corredor,
-            nome_sala: sala.nome_sala,
-            capacidade: sala.capacidade,
-            endereco_mac_esp32: sala.endereco_mac_esp32
-        };
-        db.data.salas.push(novaSala);
-        await db.write();
-        return novaSala;
+        return await Sala.create(sala);
     }
-
     static async atualizar(id, sala) {
-        await db.read();
-        const salaAtualizada = db.data.salas.find(s => s.id === id);
-        salaAtualizada.setor = sala.setor;
-        salaAtualizada.andar = sala.andar;
-        salaAtualizada.corredor = sala.corredor;
-        salaAtualizada.nome_sala = sala.nome_sala;
-        salaAtualizada.capacidade = sala.capacidade;
-        salaAtualizada.endereco_mac_esp32 = sala.endereco_mac_esp32;
-        await db.write();
-        return salaAtualizada;
+        return await Sala.findByIdAndUpdate(id, sala, { new: true });
     }
-
     static async atualizarParcialmente(id, sala) {
-        await db.read();
-        const salaAtualizada = db.data.salas.find(s => s.id === id);
-        Object.assign(salaAtualizada, sala);
-        await db.write();
-        return salaAtualizada;
+        return await Sala.findByIdAndUpdate(id, sala, { new: true });
     }
-
     static async deletar(id) {
-        await db.read();
-        const salaDeletada = db.data.salas.find(s => s.id === id);
-        db.data.salas = db.data.salas.filter(s => s.id !== id);
-        await db.write();
-        return salaDeletada;
+        return await Sala.findByIdAndDelete(id);
     }
 }
 

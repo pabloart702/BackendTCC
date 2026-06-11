@@ -31,7 +31,7 @@ class AuthController {
             
             // Gerar Token JWT
             const token = jwt.sign(
-                { userId: user.id, email: user.email, papeis: user.papeis },
+                { userId: user._id, email: user.email, papeis: user.papeis },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );

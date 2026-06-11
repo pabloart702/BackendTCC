@@ -1,14 +1,19 @@
 import mongoose from 'mongoose';
+import 'dotenv/config';
+
+const uri = process.env.MONGO_URI;
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
-        console.log(`✅ MongoDB Conectado: ${conn.connection.host}`);
+        await mongoose.connect(uri, {
+            dbName: 'controle_ar'
+        });
+        console.log(`✅ MongoDB Conectado via Mongoose`);
     } catch (error) {
-        const customError = new Error(`Erro ao conectar no MongoDB: ${error.message}`);
+        const customError = new Error(`Erro ao conectar no MongoDB via Mongoose`);
         customError.statusCode = 500;
-        throw customError; // Lança o erro para quem chamou a função (o server.js)
+        throw customError;
     }
 };
 
-export default connectDB;
+export { connectDB };

@@ -1,58 +1,23 @@
-import db from '../config/database.js'
+import User from '../models/userModel.js';
 
 class UserRepository {
-
     static async listar() {
-        await db.read();
-        return db.data.users;
+        return await User.find();
     }
-
     static async buscar(id) {
-        await db.read();
-        return db.data.users.find(user => user.id === id);
+        return await User.findById(id);
     }
-
     static async criar(user) {
-        await db.read();
-        const novoUser = {
-            id: Date.now().toString(),
-            nome: user.nome,
-            email: user.email,
-            senha: user.senha,
-            papeis: user.papeis,
-            data_criacao: user.data_criacao
-        };
-        db.data.users.push(novoUser);
-        await db.write();
-        return novoUser;
+        return await User.create(user);
     }
-
     static async atualizar(id, user) {
-        await db.read();
-        const userAtualizado = db.data.users.find(u => u.id === id);
-        userAtualizado.nome = user.nome;
-        userAtualizado.email = user.email;
-        userAtualizado.senha = user.senha;
-        userAtualizado.papeis = user.papeis;
-        userAtualizado.data_criacao = user.data_criacao;
-        await db.write();
-        return userAtualizado;
+        return await User.findByIdAndUpdate(id, user, { new: true });
     }
-
     static async atualizarParcialmente(id, user) {
-        await db.read();
-        const userAtualizado = db.data.users.find(u => u.id === id);
-        Object.assign(userAtualizado, user);
-        await db.write();
-        return userAtualizado;
+        return await User.findByIdAndUpdate(id, user, { new: true });
     }
-
     static async deletar(id) {
-        await db.read();
-        const userDeletado = db.data.users.find(u => u.id === id);
-        db.data.users = db.data.users.filter(u => u.id !== id);
-        await db.write();
-        return userDeletado;
+        return await User.findByIdAndDelete(id);
     }
 }
 

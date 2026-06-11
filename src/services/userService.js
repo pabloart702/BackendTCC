@@ -49,7 +49,7 @@ class UserService {
 
         // Validação de E-mail Único
         const usersDb = await UserRepository.listar();
-        const emailEmUso = usersDb.find(u => u.id.toString() !== id.toString() && u.email === userDados.email);
+        const emailEmUso = usersDb.find(u => u._id.toString() !== id.toString() && u.email === userDados.email);
 
         if (emailEmUso) {
             const error = new Error('Este e-mail já está em uso por outro usuário');
@@ -76,7 +76,7 @@ class UserService {
         // Validação de E-mail Único (apenas se a requisição estiver tentando alterar o e-mail)
         if (userDados.email !== undefined) {
             const usersDb = await UserRepository.listar();
-            const emailEmUso = usersDb.find(u => u.id.toString() !== id.toString() && u.email === userDados.email);
+            const emailEmUso = usersDb.find(u => u._id.toString() !== id.toString() && u.email === userDados.email);
 
             if (emailEmUso) {
                 const error = new Error('Este e-mail já está em uso por outro usuário');
