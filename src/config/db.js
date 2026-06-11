@@ -10,7 +10,7 @@ const connectDB = async () => {
         });
         console.log(`✅ MongoDB Conectado via Mongoose`);
     } catch (error) {
-        const customError = new Error(`Erro ao conectar no MongoDB via Mongoose`);
+        const customError = new Error(`Erro ao conectar no MongoDB via Mongoose: ${error.message}`);
         customError.statusCode = 500;
         throw customError;
     }
