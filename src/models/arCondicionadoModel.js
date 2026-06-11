@@ -13,4 +13,4 @@ const arCondicionadoSchema = new mongoose.Schema({
     timestamps: true
 });
 
-export default mongoose.model('ArCondicionado', arCondicionadoSchema);
+export default mongoose.model('ArCondicionado', arCondicionadoSchema, 'arCondicionado');
