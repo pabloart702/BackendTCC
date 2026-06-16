@@ -93,8 +93,18 @@ block content
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(data)
       });
-      if (res.ok) window.location.reload();
-      else alert('Erro ao salvar ar-condicionado.');
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const errorData = await res.json();
+        let errorMsg = 'Erro ao salvar ar-condicionado.';
+        if (errorData.erros && Array.isArray(errorData.erros)) {
+          errorMsg = errorData.erros.map(e => e.msg || e.message).join('\n');
+        } else if (errorData.message) {
+          errorMsg = errorData.message;
+        }
+        alert(errorMsg);
+      }
     }
 
     async function deletarAC(id) {
@@ -104,6 +114,16 @@ block content
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok) window.location.reload();
-      else alert('Erro ao excluir ar-condicionado.');
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const errorData = await res.json();
+        let errorMsg = 'Erro ao excluir ar-condicionado.';
+        if (errorData.erros && Array.isArray(errorData.erros)) {
+          errorMsg = errorData.erros.map(e => e.msg || e.message).join('\n');
+        } else if (errorData.message) {
+          errorMsg = errorData.message;
+        }
+        alert(errorMsg);
+      }
     }
