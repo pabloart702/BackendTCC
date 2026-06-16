@@ -4,10 +4,10 @@ import { validationResult } from 'express-validator';
 export const verificarErros = (req, res, next) => {
     const erros = validationResult(req);
     if (!erros.isEmpty()) {
-        const error = new Error("Erro de validação dos dados enviados.");
-        error.statusCode = 400;
-        error.errosDetalhados = erros.array();
-        return next(error);
+        return res.status(400).json({
+            sucesso: false,
+            erros: erros.array() // Retorna a lista de erros diretamente
+        });
     }
     next();
 };
