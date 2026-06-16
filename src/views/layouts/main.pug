@@ -58,7 +58,7 @@ html(lang="pt-BR")
       // Se tem token e está numa página logada, checa as permissões
       if (token && !isLoginPage) {
         const payload = parseJwt(token);
-        if (payload && payload.papeis && payload.papeis.includes('ADMIN')) {
+        if (payload && payload.papeis && payload.papeis.includes('admin')) {
           document.querySelectorAll('.admin-only').forEach(el => {
             el.style.display = 'inline-block';
           });
