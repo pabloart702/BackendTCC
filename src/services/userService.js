@@ -22,8 +22,7 @@ class UserService {
 
     static async criar(userDados) {
         // Validação de E-mail Único
-        const usersDb = await UserRepository.listar();
-        const emailEmUso = usersDb.find(u => u.email === userDados.email);
+        const emailEmUso = await UserRepository.buscarPorEmail(userDados.email);
 
         if (emailEmUso) {
             const error = new Error('Este e-mail já está em uso');
@@ -48,10 +47,9 @@ class UserService {
         }
 
         // Validação de E-mail Único
-        const usersDb = await UserRepository.listar();
-        const emailEmUso = usersDb.find(u => u._id.toString() !== id.toString() && u.email === userDados.email);
+        const emailEmUso = await UserRepository.buscarPorEmail(userDados.email);
 
-        if (emailEmUso) {
+        if (emailEmUso && emailEmUso._id.toString() !== id.toString()) {
             const error = new Error('Este e-mail já está em uso por outro usuário');
             error.statusCode = 400;
             throw error;
@@ -75,10 +73,9 @@ class UserService {
 
         // Validação de E-mail Único (apenas se a requisição estiver tentando alterar o e-mail)
         if (userDados.email !== undefined) {
-            const usersDb = await UserRepository.listar();
-            const emailEmUso = usersDb.find(u => u._id.toString() !== id.toString() && u.email === userDados.email);
+            const emailEmUso = await UserRepository.buscarPorEmail(userDados.email);
 
-            if (emailEmUso) {
+            if (emailEmUso && emailEmUso._id.toString() !== id.toString()) {
                 const error = new Error('Este e-mail já está em uso por outro usuário');
                 error.statusCode = 400;
                 throw error;

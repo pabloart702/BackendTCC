@@ -23,11 +23,8 @@ export const regrasValidacaoUser = [
         .notEmpty().withMessage('Os papéis são obrigatórios'),
     body('papeis.*')
         .isString().withMessage('Cada papel deve ser um texto')
-        .trim(),
-    body('data_criacao')
-        .isString().withMessage('A data de criação deve ser um texto')
         .trim()
-        .notEmpty().withMessage('A data de criação é obrigatória'),
+        .isIn(['admin', 'user']).withMessage('O papel deve ser admin ou user'),
     // Middleware para capturar e enviar os erros
     verificarErros
 ];
@@ -58,12 +55,8 @@ export const regrasValidacaoUserParcial = [
     body('papeis.*')
         .optional()
         .isString().withMessage('Cada papel deve ser um texto')
-        .trim(),
-    body('data_criacao')
-        .optional()
-        .isString().withMessage('A data de criação deve ser um texto')
         .trim()
-        .notEmpty().withMessage('A data de criação não pode estar vazia'),
+        .isIn(['admin', 'user']).withMessage('O papel deve ser admin ou user'),
     // Middleware para capturar e enviar os erros
     verificarErros
 ];

@@ -2,6 +2,7 @@ import { Router } from "express";
 import SalaController from '../controllers/salaController.js';
 import { regrasValidacaoSala, regrasValidacaoSalaParcial } from '../validators/salaValidators.js'
 import { authorize } from '../middleware/permissionMiddleware.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ const router = Router();
  *       200:
  *         description: Lista de salas
  */
-router.get('/', SalaController.listar);
+router.get('/', authMiddleware, authorize('admin', 'user'), SalaController.listar);
 
 /**
  * @swagger
@@ -32,7 +33,7 @@ router.get('/', SalaController.listar);
  *       200:
  *         description: Sala encontrada
  */
-router.get("/:id", SalaController.buscar);
+router.get("/:id", authMiddleware, authorize('admin', 'user'), SalaController.buscar);
 
 /**
  * @swagger
@@ -55,7 +56,7 @@ router.get("/:id", SalaController.buscar);
  *       200:
  *         description: Sala atualizada
  */
-router.patch("/:id", authorize('ADMIN'), regrasValidacaoSalaParcial, SalaController.atualizarParcialmente);
+router.patch("/:id", authMiddleware, authorize('admin'), regrasValidacaoSalaParcial, SalaController.atualizarParcialmente);
 
 /**
  * @swagger
@@ -72,7 +73,7 @@ router.patch("/:id", authorize('ADMIN'), regrasValidacaoSalaParcial, SalaControl
  *       204:
  *         description: Sala deletada
  */
-router.delete("/:id", authorize('ADMIN'), SalaController.deletar);
+router.delete("/:id", authMiddleware, authorize('admin'), SalaController.deletar);
 
 /**
  * @swagger
@@ -89,7 +90,7 @@ router.delete("/:id", authorize('ADMIN'), SalaController.deletar);
  *       201:
  *         description: Sala criada
  */
-router.post("/", authorize('ADMIN'), regrasValidacaoSala, SalaController.criar);
+router.post("/", authMiddleware, authorize('admin'), regrasValidacaoSala, SalaController.criar);
 
 /**
  * @swagger
@@ -112,6 +113,6 @@ router.post("/", authorize('ADMIN'), regrasValidacaoSala, SalaController.criar);
  *       200:
  *         description: Sala atualizada
  */
-router.put("/:id", authorize('ADMIN'), regrasValidacaoSala, SalaController.atualizar);
+router.put("/:id", authMiddleware, authorize('admin'), regrasValidacaoSala, SalaController.atualizar);
 
 export default router;

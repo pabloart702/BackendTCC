@@ -19,6 +19,13 @@ class SalaRepository {
     static async deletar(id) {
         return await Sala.findByIdAndDelete(id);
     }
+    static async buscarPorLocalizacao(setor, andar, nome_sala) {
+        return await Sala.findOne({
+            setor: setor,
+            andar: andar,
+            nome_sala: nome_sala
+        });
+    }
 }
 
 export default SalaRepository;

@@ -21,11 +21,10 @@ class SalaService {
 
     static async criar(salaDados) {
         // Não cadastra salas duplicadas
-        const salasDb = await SalaRepository.listar();
-        const salaDuplicada = salasDb.find(
-            s => s.setor === salaDados.setor &&
-                s.andar === salaDados.andar &&
-                s.nome_sala === salaDados.nome_sala
+        const salaDuplicada = await SalaRepository.buscarPorLocalizacao(
+            salaDados.setor,
+            salaDados.andar,
+            salaDados.nome_sala
         );
 
         if (salaDuplicada) {
@@ -47,15 +46,13 @@ class SalaService {
         }
 
         // Não cadastra salas duplicadas
-        const salasDb = await SalaRepository.listar();
-        const salaDuplicada = salasDb.find(
-            s => String(s._id) !== String(id) && // Ignora a própria sala sendo atualizada
-                s.setor === salaDados.setor &&
-                s.andar === salaDados.andar &&
-                s.nome_sala === salaDados.nome_sala
+        const salaDuplicada = await SalaRepository.buscarPorLocalizacao(
+            salaDados.setor,
+            salaDados.andar,
+            salaDados.nome_sala
         );
 
-        if (salaDuplicada) {
+        if (salaDuplicada && salaDuplicada._id.toString() !== id.toString()) {
             const error = new Error('Já existe outra sala cadastrada com este setor, andar e nome da sala');
             error.statusCode = 400;
             throw error;
@@ -79,15 +76,9 @@ class SalaService {
         const nomeSalaFinal = salaDados.nome_sala !== undefined ? salaDados.nome_sala : salaAtual.nome_sala;
 
         // Não cadastra salas duplicadas
-        const salasDb = await SalaRepository.listar();
-        const salaDuplicada = salasDb.find(
-            s => String(s._id) !== String(id) &&
-                s.setor === setorFinal &&
-                s.andar === andarFinal &&
-                s.nome_sala === nomeSalaFinal
-        );
+        const salaDuplicada = await SalaRepository.buscarPorLocalizacao(setorFinal, andarFinal, nomeSalaFinal);
 
-        if (salaDuplicada) {
+        if (salaDuplicada && salaDuplicada._id.toString() !== id.toString()) {
             const error = new Error('As alterações fariam esta sala ter setor, andar e nome da sala idênticos a outra sala já existente');
             error.statusCode = 400;
             throw error;

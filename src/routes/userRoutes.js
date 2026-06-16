@@ -2,6 +2,7 @@ import { Router } from "express";
 import UserController from "../controllers/userController.js";
 import { regrasValidacaoUser, regrasValidacaoUserParcial } from '../validators/userValidators.js'
 import { authorize } from '../middleware/permissionMiddleware.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ const router = Router();
  *       200:
  *         description: Lista de usuários retornada com sucesso
  */
-router.get('/', UserController.listar);
+router.get('/', authMiddleware, authorize('admin'),UserController.listar);
 
 /**
  * @swagger
@@ -32,7 +33,7 @@ router.get('/', UserController.listar);
  *       200:
  *         description: Usuário encontrado com sucesso
  */
-router.get("/:id", UserController.buscar);
+router.get("/:id", authMiddleware, authorize('admin'), UserController.buscar);
 
 /**
  * @swagger
@@ -55,7 +56,7 @@ router.get("/:id", UserController.buscar);
  *       200:
  *         description: Usuário atualizado
  */
-router.patch("/:id", authorize('ADMIN'), regrasValidacaoUserParcial, UserController.atualizarParcialmente);
+router.patch("/:id", authMiddleware, authorize('admin'), regrasValidacaoUserParcial, UserController.atualizarParcialmente);
 
 /**
  * @swagger
@@ -72,7 +73,7 @@ router.patch("/:id", authorize('ADMIN'), regrasValidacaoUserParcial, UserControl
  *       204:
  *         description: Usuário deletado
  */
-router.delete("/:id", authorize('ADMIN'), UserController.deletar);
+router.delete("/:id", authMiddleware, authorize('admin'), UserController.deletar);
 
 /**
  * @swagger
@@ -89,7 +90,7 @@ router.delete("/:id", authorize('ADMIN'), UserController.deletar);
  *       201:
  *         description: Usuário criado
  */
-router.post("/", authorize('ADMIN'), regrasValidacaoUser, UserController.criar);
+router.post("/", authMiddleware, authorize('admin'), regrasValidacaoUser, UserController.criar);
 
 /**
  * @swagger
@@ -112,6 +113,6 @@ router.post("/", authorize('ADMIN'), regrasValidacaoUser, UserController.criar);
  *       200:
  *         description: Usuário atualizado
  */
-router.put("/:id", authorize('ADMIN'), regrasValidacaoUser, UserController.atualizar);
+router.put("/:id", authMiddleware, authorize('admin'), regrasValidacaoUser, UserController.atualizar);
 
 export default router;
