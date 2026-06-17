@@ -14,25 +14,8 @@ block content
     button.btn.btn-primary(onclick="salvarUser()") Salvar
     button.btn.btn-danger(onclick="document.getElementById('formUser').style.display='none'") Cancelar
 
-  if users && users.length > 0
-    each user in users
-      div.card
-        h3= user.nome
-        p(style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;")
-          strong ID: 
-          span= user.id
-        p
-          strong Email: 
-          span= user.email
-        p
-          strong Papel: 
-          span= user.papeis
-
-        div(style="margin-top: 15px;")
-          button.btn.btn-primary.admin-only(onclick=`editarUser('${user.id}', '${user.nome}', '${user.email}', '${user.papeis}')`) Editar
-          button.btn.btn-danger.admin-only(onclick=`deletarUser('${user.id}')`) Excluir
-  else
-    p.empty-msg Nenhum usuário cadastrado no momento.
+  div#errorMsg(style="color: #e74c3c; display: none; margin-bottom: 15px; font-weight: bold;")
+  div#usersContainer
 
   script.
     function mostrarFormUser() {
@@ -109,3 +92,49 @@ block content
         alert(errorMsg);
       }
     }
+
+    async function carregarUsers() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/users', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            document.getElementById('errorMsg').innerText = 'Acesso Negado: Você não tem permissão de administrador para visualizar a lista de usuários.';
+            document.getElementById('errorMsg').style.display = 'block';
+            return;
+          }
+          throw new Error('Erro ao buscar usuários');
+        }
+        
+        const users = await res.json();
+        const container = document.getElementById('usersContainer');
+        
+        if (!users || users.length === 0) {
+          container.innerHTML = '<p class="empty-msg">Nenhum usuário cadastrado no momento.</p>';
+          return;
+        }
+
+        container.innerHTML = users.map(user => `
+          <div class="card">
+            <h3>${user.nome}</h3>
+            <p style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;">
+              <strong>ID: </strong><span>${user.id}</span>
+            </p>
+            <p><strong>Email: </strong><span>${user.email}</span></p>
+            <p><strong>Papel: </strong><span>${user.papeis}</span></p>
+            <div style="margin-top: 15px;">
+              <button class="btn btn-primary admin-only" style="display:inline-block" onclick="editarUser('${user.id}', '${user.nome}', '${user.email}', '${user.papeis}')">Editar</button>
+              <button class="btn btn-danger admin-only" style="display:inline-block" onclick="deletarUser('${user.id}')">Excluir</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        document.getElementById('errorMsg').innerText = 'Erro de comunicação com o servidor ao carregar usuários.';
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+
+    carregarUsers();

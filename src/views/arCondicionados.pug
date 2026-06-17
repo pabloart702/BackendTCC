@@ -18,29 +18,8 @@ block content
     button.btn.btn-primary(onclick="salvarAC()") Salvar
     button.btn.btn-danger(onclick="document.getElementById('formAC').style.display='none'") Cancelar
 
-  if arCondicionados && arCondicionados.length > 0
-    each ac in arCondicionados
-      div.card
-        h3= ac.marca_modelo
-        p
-          strong ID: 
-          span= ac.id
-        p
-          strong ID da Sala: 
-          span= ac.sala_id
-        p
-          strong Status: 
-          span= ac.status
-        if ac.temperatura_atual
-          p
-            strong Temperatura Atual: 
-            span #{ac.temperatura_atual}°C
-
-        div(style="margin-top: 15px;")
-          button.btn.btn-primary.admin-only(onclick=`editarAC('${ac.id}', '${ac.sala_id}', '${ac.marca_modelo}', '${ac.status}', '${ac.temperatura_atual}', '${ac.codigo_ir_ligar}', '${ac.codigo_ir_desligar}', '${ac.codigo_ir_temp_23}', '${ac.codigo_ir_modo_cool}')`) Editar
-          button.btn.btn-danger.admin-only(onclick=`deletarAC('${ac.id}')`) Excluir
-  else
-    p.empty-msg Nenhum ar-condicionado cadastrado no momento.
+  div#errorMsg(style="color: #e74c3c; display: none; margin-bottom: 15px; font-weight: bold;")
+  div#acContainer
 
   script.
     function mostrarFormAC() {
@@ -127,3 +106,53 @@ block content
         alert(errorMsg);
       }
     }
+
+    async function carregarACs() {
+      const token = localStorage.getItem('token');
+      try {
+        // Observação: a rota correta configurada no app.js é /api/arCondicionados
+        const res = await fetch('/api/arCondicionados', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            document.getElementById('errorMsg').innerText = 'Acesso Negado: Você não tem permissão para visualizar os ares-condicionados.';
+            document.getElementById('errorMsg').style.display = 'block';
+            return;
+          }
+          throw new Error('Erro ao buscar ar-condicionados');
+        }
+        
+        const arCondicionados = await res.json();
+        const container = document.getElementById('acContainer');
+        
+        if (!arCondicionados || arCondicionados.length === 0) {
+          container.innerHTML = '<p class="empty-msg">Nenhum ar-condicionado cadastrado no momento.</p>';
+          return;
+        }
+
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isAdmin = payload.papeis.includes('admin');
+        const displayAdmin = isAdmin ? 'inline-block' : 'none';
+
+        container.innerHTML = arCondicionados.map(ac => `
+          <div class="card">
+            <h3>${ac.marca_modelo}</h3>
+            <p><strong>ID: </strong><span>${ac.id}</span></p>
+            <p><strong>ID da Sala: </strong><span>${ac.sala_id}</span></p>
+            <p><strong>Status: </strong><span>${ac.status}</span></p>
+            ${ac.temperatura_atual ? \`<p><strong>Temperatura Atual: </strong><span>${ac.temperatura_atual}°C</span></p>\` : ''}
+            <div style="margin-top: 15px;">
+              <button class="btn btn-primary admin-only" style="display:${displayAdmin}" onclick="editarAC('${ac.id}', '${ac.sala_id}', '${ac.marca_modelo}', '${ac.status}', '${ac.temperatura_atual}', '${ac.codigo_ir_ligar}', '${ac.codigo_ir_desligar}', '${ac.codigo_ir_temp_23}', '${ac.codigo_ir_modo_cool}')">Editar</button>
+              <button class="btn btn-danger admin-only" style="display:${displayAdmin}" onclick="deletarAC('${ac.id}')">Excluir</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        document.getElementById('errorMsg').innerText = 'Erro de comunicação com o servidor ao carregar ares-condicionados.';
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+
+    carregarACs();

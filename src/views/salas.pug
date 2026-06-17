@@ -16,31 +16,8 @@ block content
     button.btn.btn-primary(onclick="salvarSala()") Salvar
     button.btn.btn-danger(onclick="document.getElementById('formSala').style.display='none'") Cancelar
 
-  if salas && salas.length > 0
-    each sala in salas
-      div.card
-        h3= sala.nome_sala
-        p(style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;")
-          strong ID da Sala: 
-          span= sala.id
-        p
-          strong Setor: 
-          span= sala.setor
-        p
-          strong Andar: 
-          span= sala.andar
-        p
-          strong Corredor: 
-          span= sala.corredor
-        p
-          strong Capacidade: 
-          span #{sala.capacidade} pessoas
-        
-        div(style="margin-top: 15px;")
-          button.btn.btn-primary.admin-only(onclick=`editarSala('${sala.id}', '${sala.setor}', '${sala.andar}', '${sala.corredor}', '${sala.nome_sala}', '${sala.capacidade}', '${sala.endereco_mac_esp32}')`) Editar
-          button.btn.btn-danger.admin-only(onclick=`deletarSala('${sala.id}')`) Excluir
-  else
-    p.empty-msg Nenhuma sala cadastrada no momento.
+  div#errorMsg(style="color: #e74c3c; display: none; margin-bottom: 15px; font-weight: bold;")
+  div#salasContainer
 
   script.
     function mostrarFormSala() {
@@ -121,3 +98,55 @@ block content
         alert(errorMsg);
       }
     }
+
+    async function carregarSalas() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/salas', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            document.getElementById('errorMsg').innerText = 'Acesso Negado: Você não tem permissão para visualizar as salas.';
+            document.getElementById('errorMsg').style.display = 'block';
+            return;
+          }
+          throw new Error('Erro ao buscar salas');
+        }
+        
+        const salas = await res.json();
+        const container = document.getElementById('salasContainer');
+        
+        if (!salas || salas.length === 0) {
+          container.innerHTML = '<p class="empty-msg">Nenhuma sala cadastrada no momento.</p>';
+          return;
+        }
+
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isAdmin = payload.papeis.includes('admin');
+        const displayAdmin = isAdmin ? 'inline-block' : 'none';
+
+        container.innerHTML = salas.map(sala => `
+          <div class="card">
+            <h3>${sala.nome_sala}</h3>
+            <p style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;">
+              <strong>ID da Sala: </strong><span>${sala.id}</span>
+            </p>
+            <p><strong>Setor: </strong><span>${sala.setor}</span></p>
+            <p><strong>Andar: </strong><span>${sala.andar}</span></p>
+            <p><strong>Corredor: </strong><span>${sala.corredor}</span></p>
+            <p><strong>Capacidade: </strong><span>${sala.capacidade} pessoas</span></p>
+            <div style="margin-top: 15px;">
+              <button class="btn btn-primary admin-only" style="display:${displayAdmin}" onclick="editarSala('${sala.id}', '${sala.setor}', '${sala.andar}', '${sala.corredor}', '${sala.nome_sala}', '${sala.capacidade}', '${sala.endereco_mac_esp32}')">Editar</button>
+              <button class="btn btn-danger admin-only" style="display:${displayAdmin}" onclick="deletarSala('${sala.id}')">Excluir</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        document.getElementById('errorMsg').innerText = 'Erro de comunicação com o servidor ao carregar salas.';
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+
+    carregarSalas();
