@@ -142,7 +142,7 @@ block content
             <p><strong>ID: </strong><span>${ac.id}</span></p>
             <p><strong>ID da Sala: </strong><span>${ac.sala_id}</span></p>
             <p><strong>Status: </strong><span>${ac.status}</span></p>
-            ${ac.temperatura_atual ? \`<p><strong>Temperatura Atual: </strong><span>${ac.temperatura_atual}°C</span></p>\` : ''}
+            ${ac.temperatura_atual ? `<p><strong>Temperatura Atual: </strong><span>${ac.temperatura_atual}°C</span></p>` : ''}
             <div style="margin-top: 15px;">
               <button class="btn btn-primary admin-only" style="display:${displayAdmin}" onclick="editarAC('${ac.id}', '${ac.sala_id}', '${ac.marca_modelo}', '${ac.status}', '${ac.temperatura_atual}', '${ac.codigo_ir_ligar}', '${ac.codigo_ir_desligar}', '${ac.codigo_ir_temp_23}', '${ac.codigo_ir_modo_cool}')">Editar</button>
               <button class="btn btn-danger admin-only" style="display:${displayAdmin}" onclick="deletarAC('${ac.id}')">Excluir</button>
