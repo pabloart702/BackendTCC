@@ -10,7 +10,7 @@ Representa as contas de acesso ao sistema.
 - `nome`: Nome completo do usuário
 - `email`: Endereço de email (deve ser único)
 - `senha`: Senha do usuário
-- `papel`: Nível de acesso e permissões (ex: "ADMIN", "USER")
+- `papel`: Nível de acesso e permissões (ex: "admin", "user")
 - `data_criacao`: Data/hora em que a conta foi registrada no sistema (não é automático, deve ser enviado)
 
 ### 2. Sala
