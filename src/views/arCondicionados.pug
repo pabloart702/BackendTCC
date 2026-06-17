@@ -18,31 +18,90 @@ block content
     button.btn.btn-primary(onclick="salvarAC()") Salvar
     button.btn.btn-danger(onclick="document.getElementById('formAC').style.display='none'") Cancelar
 
-  if arCondicionados && arCondicionados.length > 0
-    each ac in arCondicionados
-      div.card
-        h3= ac.marca_modelo
-        p
-          strong ID: 
-          span= ac.id
-        p
-          strong ID da Sala: 
-          span= ac.sala_id
-        p
-          strong Status: 
-          span= ac.status
-        if ac.temperatura_atual
-          p
-            strong Temperatura Atual: 
-            span #{ac.temperatura_atual}°C
-
-        div(style="margin-top: 15px;")
-          button.btn.btn-primary.admin-only(onclick=`editarAC('${ac.id}', '${ac.sala_id}', '${ac.marca_modelo}', '${ac.status}', '${ac.temperatura_atual}', '${ac.codigo_ir_ligar}', '${ac.codigo_ir_desligar}', '${ac.codigo_ir_temp_23}', '${ac.codigo_ir_modo_cool}')`) Editar
-          button.btn.btn-danger.admin-only(onclick=`deletarAC('${ac.id}')`) Excluir
-  else
-    p.empty-msg Nenhum ar-condicionado cadastrado no momento.
+  div#acList
 
   script.
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/web/login';
+        return;
+      }
+      
+      await carregarAres();
+      
+      // Checa se é admin para exibir botões de administrador
+      const payload = parseJwt(token);
+      if (payload && payload.papeis && payload.papeis.includes('admin')) {
+        document.querySelectorAll('.admin-only').forEach(el => {
+          el.style.display = 'inline-block';
+        });
+      }
+    });
+
+    async function carregarAres() {
+      const token = localStorage.getItem('token');
+      const listDiv = document.getElementById('acList');
+      listDiv.innerHTML = '';
+      
+      try {
+        const res = await fetch('/api/arCondicionados', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const arCondicionados = await res.json();
+          const payload = parseJwt(token);
+          const isAdmin = payload && payload.papeis && payload.papeis.includes('admin');
+          
+          if (arCondicionados && arCondicionados.length > 0) {
+            arCondicionados.forEach(ac => {
+              const card = document.createElement('div');
+              card.className = 'card';
+              
+              // Evitar problemas de aspas nas strings
+              const marcaEscaped = ac.marca_modelo ? ac.marca_modelo.replace(/'/g, "\\'") : '';
+              const statusEscaped = ac.status ? ac.status.replace(/'/g, "\\'") : '';
+              const ligarEscaped = ac.codigo_ir_ligar ? ac.codigo_ir_ligar.replace(/'/g, "\\'") : '';
+              const desligarEscaped = ac.codigo_ir_desligar ? ac.codigo_ir_desligar.replace(/'/g, "\\'") : '';
+              const temp23Escaped = ac.codigo_ir_temp_23 ? ac.codigo_ir_temp_23.replace(/'/g, "\\'") : '';
+              const coolEscaped = ac.codigo_ir_modo_cool ? ac.codigo_ir_modo_cool.replace(/'/g, "\\'") : '';
+              
+              let tempHtml = '';
+              if (ac.temperatura_atual !== undefined && ac.temperatura_atual !== null) {
+                tempHtml = `<p><strong>Temperatura Atual: </strong><span>${ac.temperatura_atual}°C</span></p>`;
+              }
+              
+              card.innerHTML = `
+                <h3>${ac.marca_modelo}</h3>
+                <p>
+                  <strong>ID: </strong><span>${ac.id}</span>
+                </p>
+                <p>
+                  <strong>ID da Sala: </strong><span>${ac.sala_id}</span>
+                </p>
+                <p>
+                  <strong>Status: </strong><span>${ac.status}</span>
+                </p>
+                ${tempHtml}
+                <div style="margin-top: 15px;">
+                  <button class="btn btn-primary admin-only" style="display: ${isAdmin ? 'inline-block' : 'none'};" onclick="editarAC('${ac.id}', '${ac.sala_id}', '${marcaEscaped}', '${statusEscaped}', '${ac.temperatura_atual || ''}', '${ligarEscaped}', '${desligarEscaped}', '${temp23Escaped}', '${coolEscaped}')">Editar</button>
+                  <button class="btn btn-danger admin-only" style="display: ${isAdmin ? 'inline-block' : 'none'};" onclick="deletarAC('${ac.id}')">Excluir</button>
+                </div>
+              `;
+              listDiv.appendChild(card);
+            });
+          } else {
+            listDiv.innerHTML = '<p class="empty-msg">Nenhum ar-condicionado cadastrado no momento.</p>';
+          }
+        } else {
+          listDiv.innerHTML = '<p class="empty-msg">Erro ao carregar ares-condicionados da API.</p>';
+        }
+      } catch (err) {
+        console.error(err);
+        listDiv.innerHTML = '<p class="empty-msg">Erro de conexão ao carregar ares-condicionados.</p>';
+      }
+    }
+
     function mostrarFormAC() {
       document.getElementById('formACTitle').innerText = 'Novo Ar-Condicionado';
       document.getElementById('acId').value = '';
@@ -94,7 +153,8 @@ block content
         body: JSON.stringify(data)
       });
       if (res.ok) {
-        window.location.reload();
+        document.getElementById('formAC').style.display = 'none';
+        await carregarAres();
       } else {
         const errorData = await res.json();
         let errorMsg = 'Erro ao salvar ar-condicionado.';
@@ -115,7 +175,7 @@ block content
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        window.location.reload();
+        await carregarAres();
       } else {
         const errorData = await res.json();
         let errorMsg = 'Erro ao excluir ar-condicionado.';

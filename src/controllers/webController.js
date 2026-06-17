@@ -1,7 +1,3 @@
-import ArCondicionadoService from '../services/arCondicionadoService.js';
-import SalaService from '../services/salaService.js';
-import UserService from '../services/userService.js';
-
 class WebController {
     static login(req, res) {
         res.render('login', { title: 'Login' });
@@ -9,8 +5,7 @@ class WebController {
 
     static async listarArCondicionados(req, res, next) {
         try {
-            const arCondicionados = await ArCondicionadoService.listar();
-            res.render('arCondicionados', { title: 'Ar-Condicionados', arCondicionados: arCondicionados });
+            res.render('arCondicionados', { title: 'Ar-Condicionados' });
         } catch (error) {
             next(error);
         }
@@ -18,8 +13,7 @@ class WebController {
 
     static async listarSalas(req, res, next) {
         try {
-            const salas = await SalaService.listar();
-            res.render('salas', { title: 'Salas', salas: salas });
+            res.render('salas', { title: 'Salas' });
         } catch (error) {
             next(error);
         }
@@ -27,8 +21,7 @@ class WebController {
 
     static async listarUsers(req, res, next) {
         try {
-            const users = await UserService.listar();
-            res.render('users', { title: 'Usuários', users: users });
+            res.render('users', { title: 'Usuários' });
         } catch (error) {
             next(error);
         }

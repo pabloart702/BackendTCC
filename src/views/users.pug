@@ -1,40 +1,86 @@
 extends layouts/main.pug
 
 block content
-  h1 Lista de Usuários
-  button.btn.btn-success.admin-only(onclick="mostrarFormUser()") + Novo Usuário
+  div#adminContent(style="display:none;")
+    h1 Lista de Usuários
+    button.btn.btn-success(onclick="mostrarFormUser()") + Novo Usuário
 
-  div#formUser(style="display:none; background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px;")
-    h3#formUserTitle Novo Usuário
-    input(type="hidden" id="userId")
-    input(type="text" id="nome" placeholder="Nome")
-    input(type="email" id="email" placeholder="E-mail")
-    input(type="password" id="senha" placeholder="Senha (vazio para manter)")
-    input(type="text" id="papeis" placeholder="Papéis (ex: admin,user)")
-    button.btn.btn-primary(onclick="salvarUser()") Salvar
-    button.btn.btn-danger(onclick="document.getElementById('formUser').style.display='none'") Cancelar
+    div#formUser(style="display:none; background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px;")
+      h3#formUserTitle Novo Usuário
+      input(type="hidden" id="userId")
+      input(type="text" id="nome" placeholder="Nome")
+      input(type="email" id="email" placeholder="E-mail")
+      input(type="password" id="senha" placeholder="Senha (vazio para manter)")
+      input(type="text" id="papeis" placeholder="Papéis (ex: admin,user)")
+      button.btn.btn-primary(onclick="salvarUser()") Salvar
+      button.btn.btn-danger(onclick="document.getElementById('formUser').style.display='none'") Cancelar
 
-  if users && users.length > 0
-    each user in users
-      div.card
-        h3= user.nome
-        p(style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;")
-          strong ID: 
-          span= user.id
-        p
-          strong Email: 
-          span= user.email
-        p
-          strong Papel: 
-          span= user.papeis
-
-        div(style="margin-top: 15px;")
-          button.btn.btn-primary.admin-only(onclick=`editarUser('${user.id}', '${user.nome}', '${user.email}', '${user.papeis}')`) Editar
-          button.btn.btn-danger.admin-only(onclick=`deletarUser('${user.id}')`) Excluir
-  else
-    p.empty-msg Nenhum usuário cadastrado no momento.
+    div#usersList
 
   script.
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/web/login';
+        return;
+      }
+      
+      const payload = parseJwt(token);
+      if (!payload || !payload.papeis || !payload.papeis.includes('admin')) {
+        alert("Acesso negado. Apenas administradores podem acessar esta página.");
+        window.location.href = '/web/salas';
+        return;
+      }
+
+      document.getElementById('adminContent').style.display = 'block';
+      await carregarUsuarios();
+    });
+
+    async function carregarUsuarios() {
+      const token = localStorage.getItem('token');
+      const listDiv = document.getElementById('usersList');
+      listDiv.innerHTML = '';
+      
+      try {
+        const res = await fetch('/api/users', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const users = await res.json();
+          if (users && users.length > 0) {
+            users.forEach(user => {
+              const card = document.createElement('div');
+              card.className = 'card';
+              card.innerHTML = `
+                <h3>${user.nome}</h3>
+                <p style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;">
+                  <strong>ID: </strong><span>${user.id}</span>
+                </p>
+                <p>
+                  <strong>Email: </strong><span>${user.email}</span>
+                </p>
+                <p>
+                  <strong>Papel: </strong><span>${user.papeis}</span>
+                </p>
+                <div style="margin-top: 15px;">
+                  <button class="btn btn-primary" onclick="editarUser('${user.id}', '${user.nome.replace(/'/g, "\\'")}', '${user.email}', '${user.papeis}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deletarUser('${user.id}')">Excluir</button>
+                </div>
+              `;
+              listDiv.appendChild(card);
+            });
+          } else {
+            listDiv.innerHTML = '<p class="empty-msg">Nenhum usuário cadastrado no momento.</p>';
+          }
+        } else {
+          listDiv.innerHTML = '<p class="empty-msg">Erro ao carregar usuários da API.</p>';
+        }
+      } catch (err) {
+        console.error(err);
+        listDiv.innerHTML = '<p class="empty-msg">Erro de conexão ao carregar usuários.</p>';
+      }
+    }
+
     function mostrarFormUser() {
       document.getElementById('formUserTitle').innerText = 'Novo Usuário';
       document.getElementById('userId').value = '';
@@ -76,7 +122,8 @@ block content
         body: JSON.stringify(data)
       });
       if (res.ok) {
-        window.location.reload();
+        document.getElementById('formUser').style.display = 'none';
+        await carregarUsuarios();
       } else {
         const errorData = await res.json();
         let errorMsg = 'Erro ao salvar usuário.';
@@ -97,7 +144,7 @@ block content
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        window.location.reload();
+        await carregarUsuarios();
       } else {
         const errorData = await res.json();
         let errorMsg = 'Erro ao excluir usuário.';
