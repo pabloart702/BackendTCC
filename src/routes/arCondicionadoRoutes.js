@@ -121,7 +121,7 @@ router.post("/", authMiddleware, authorize('admin'), regrasValidacaoArCondiciona
  *       200:
  *         description: Ar condicionado atualizado
  */
-router.put("/:id", authMiddleware, authorize('admin', 'user'), regrasValidacaoArCondicionado, ArCondicionadoController.atualizar);
+router.put("/:id", authMiddleware, authorize('admin'), regrasValidacaoArCondicionado, ArCondicionadoController.atualizar);
 
 
 export default router;
