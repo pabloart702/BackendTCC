@@ -16,33 +16,89 @@ block content
     button.btn.btn-primary(onclick="salvarSala()") Salvar
     button.btn.btn-danger(onclick="document.getElementById('formSala').style.display='none'") Cancelar
 
-  if salas && salas.length > 0
-    each sala in salas
-      div.card
-        h3= sala.nome_sala
-        p(style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;")
-          strong ID da Sala: 
-          span= sala.id
-        p
-          strong Setor: 
-          span= sala.setor
-        p
-          strong Andar: 
-          span= sala.andar
-        p
-          strong Corredor: 
-          span= sala.corredor
-        p
-          strong Capacidade: 
-          span #{sala.capacidade} pessoas
-        
-        div(style="margin-top: 15px;")
-          button.btn.btn-primary.admin-only(onclick=`editarSala('${sala.id}', '${sala.setor}', '${sala.andar}', '${sala.corredor}', '${sala.nome_sala}', '${sala.capacidade}', '${sala.endereco_mac_esp32}')`) Editar
-          button.btn.btn-danger.admin-only(onclick=`deletarSala('${sala.id}')`) Excluir
-  else
-    p.empty-msg Nenhuma sala cadastrada no momento.
+  div#salasList
 
   script.
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/web/login';
+        return;
+      }
+      
+      await carregarSalas();
+      
+      // Checa se é admin para exibir botões de administrador
+      const payload = parseJwt(token);
+      if (payload && payload.papeis && payload.papeis.includes('admin')) {
+        document.querySelectorAll('.admin-only').forEach(el => {
+          el.style.display = 'inline-block';
+        });
+      }
+    });
+
+    async function carregarSalas() {
+      const token = localStorage.getItem('token');
+      const listDiv = document.getElementById('salasList');
+      listDiv.innerHTML = '';
+      
+      try {
+        const res = await fetch('/api/salas', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const salas = await res.json();
+          const payload = parseJwt(token);
+          const isAdmin = payload && payload.papeis && payload.papeis.includes('admin');
+          
+          if (salas && salas.length > 0) {
+            salas.forEach(sala => {
+              const card = document.createElement('div');
+              card.className = 'card';
+              
+              // Evitar problemas com aspas simples nos parâmetros das funções javascript
+              const nomeEscaped = sala.nome_sala ? sala.nome_sala.replace(/'/g, "\\'") : '';
+              const setorEscaped = sala.setor ? sala.setor.replace(/'/g, "\\'") : '';
+              const andarEscaped = sala.andar ? sala.andar.replace(/'/g, "\\'") : '';
+              const corridorEscaped = sala.corredor ? sala.corredor.replace(/'/g, "\\'") : '';
+              const macEscaped = sala.endereco_mac_esp32 ? sala.endereco_mac_esp32.replace(/'/g, "\\'") : '';
+              
+              card.innerHTML = `
+                <h3>${sala.nome_sala}</h3>
+                <p style="font-size: 0.9em; color: #7f8c8d; font-family: monospace;">
+                  <strong>ID da Sala: </strong><span>${sala.id}</span>
+                </p>
+                <p>
+                  <strong>Setor: </strong><span>${sala.setor}</span>
+                </p>
+                <p>
+                  <strong>Andar: </strong><span>${sala.andar}</span>
+                </p>
+                <p>
+                  <strong>Corredor: </strong><span>${sala.corredor}</span>
+                </p>
+                <p>
+                  <strong>Capacidade: </strong><span>${sala.capacidade} pessoas</span>
+                </p>
+                <div style="margin-top: 15px;">
+                  <button class="btn btn-primary admin-only" style="display: ${isAdmin ? 'inline-block' : 'none'};" onclick="editarSala('${sala.id}', '${setorEscaped}', '${andarEscaped}', '${corredorEscaped}', '${nomeEscaped}', '${sala.capacidade}', '${macEscaped}')">Editar</button>
+                  <button class="btn btn-danger admin-only" style="display: ${isAdmin ? 'inline-block' : 'none'};" onclick="deletarSala('${sala.id}')">Excluir</button>
+                </div>
+              `;
+              listDiv.appendChild(card);
+            });
+          } else {
+            listDiv.innerHTML = '<p class="empty-msg">Nenhuma sala cadastrada no momento.</p>';
+          }
+        } else {
+          listDiv.innerHTML = '<p class="empty-msg">Erro ao carregar salas da API.</p>';
+        }
+      } catch (err) {
+        console.error(err);
+        listDiv.innerHTML = '<p class="empty-msg">Erro de conexão ao carregar salas.</p>';
+      }
+    }
+
     function mostrarFormSala() {
       document.getElementById('formSalaTitle').innerText = 'Nova Sala';
       document.getElementById('salaId').value = '';
@@ -55,12 +111,12 @@ block content
       document.getElementById('formSala').style.display = 'block';
     }
 
-    function editarSala(id, setor, andar, corredor, nome_sala, capacidade, mac) {
+    function editarSala(id, setor, andar, corridor, nome_sala, capacidade, mac) {
       document.getElementById('formSalaTitle').innerText = 'Editar Sala';
       document.getElementById('salaId').value = id;
       document.getElementById('setor').value = setor;
       document.getElementById('andar').value = andar;
-      document.getElementById('corredor').value = corredor;
+      document.getElementById('corredor').value = corridor;
       document.getElementById('nome_sala').value = nome_sala;
       document.getElementById('capacidade').value = capacidade;
       document.getElementById('endereco_mac_esp32').value = mac;
@@ -88,7 +144,8 @@ block content
         body: JSON.stringify(data)
       });
       if (res.ok) {
-        window.location.reload();
+        document.getElementById('formSala').style.display = 'none';
+        await carregarSalas();
       } else {
         const errorData = await res.json();
         let errorMsg = 'Erro ao salvar sala.';
@@ -109,7 +166,7 @@ block content
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        window.location.reload();
+        await carregarSalas();
       } else {
         const errorData = await res.json();
         let errorMsg = 'Erro ao excluir sala.';
