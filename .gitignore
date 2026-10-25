@@ -1,3 +1,7 @@
 node_modules/
 .env
 Slides/
+
+# Mosquitto runtime data e logs
+mosquitto/data/
+mosquitto/log/

@@ -112,3 +112,78 @@ As seguintes rotas não retornam JSON, e sim páginas HTML renderizadas diretame
 ```bash
 curl -X GET http://localhost:3000/web/salas
 ```
+
+---
+
+## 🐳 Executando com Docker e Docker Compose
+
+O projeto está configurado para execução via Docker Compose, subindo de forma orquestrada o **Backend Node.js** e o broker MQTT **Eclipse Mosquitto**.
+
+### 1. Iniciar os Serviços
+
+Para construir as imagens e subir os contêineres em segundo plano:
+```bash
+docker compose up -d --build
+# ou via script npm:
+npm run docker:up
+```
+
+### 2. Verificar Status dos Contêineres
+
+```bash
+docker compose ps
+```
+Você verá:
+- `tcc_mosquitto` (rodando nas portas `1883` para MQTT TCP e `9001` para WebSockets)
+- `tcc_backend` (rodando na porta `3000`, conectado à rede interna do Mosquitto e ao MongoDB Atlas)
+
+### 3. Visualizar Logs em Tempo Real
+
+```bash
+docker compose logs -f
+# ou apenas do backend:
+docker compose logs -f backend
+# ou apenas do broker:
+docker compose logs -f mosquitto
+```
+
+### 4. Parar os Contêineres
+
+```bash
+docker compose down
+# ou via script npm:
+npm run docker:down
+```
+
+---
+
+## 📡 Testando a Comunicação MQTT (Mosquitto)
+
+O broker MQTT está configurado com **autenticação obrigatória (conexões anônimas bloqueadas)**.
+
+### Credenciais pré-configuradas:
+- **Backend / Admin**:
+  - Usuário: `admin_tcc`
+  - Senha: `senha_segura_tcc_2026`
+- **Dispositivo ESP32**:
+  - Usuário: `esp32_device`
+  - Senha: `senha_segura_esp32_2026`
+
+### Comandos de Teste via Terminal:
+
+**1. Assinar um tópico (escutar mensagens):**
+```bash
+docker compose exec mosquitto mosquitto_sub -u admin_tcc -P senha_segura_tcc_2026 -t "salas/+/temperatura" -v
+```
+
+**2. Publicar uma mensagem de teste:**
+```bash
+docker compose exec mosquitto mosquitto_pub -u esp32_device -P senha_segura_esp32_2026 -t "salas/C2/temperatura" -m '{"temperatura": 23.5, "umidade": 60}'
+```
+
+**3. Testar bloqueio de conexão anônima (deve falhar):**
+```bash
+docker compose exec mosquitto mosquitto_pub -t "teste" -m "deve falhar"
+# Retorno esperado: Connection Refused: not authorised.
+```
+

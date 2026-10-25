@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:restart": "docker compose restart"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +26,7 @@
     "lowdb": "^7.0.1",
     "mongodb": "^7.3.0",
     "mongoose": "^9.7.0",
+    "mqtt": "^5.16.1",
     "nodemon": "^3.1.14",
     "pug": "^3.0.4",
     "swagger-jsdoc": "^6.3.0",

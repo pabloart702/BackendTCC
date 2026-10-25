@@ -1,0 +1,68 @@
+services:
+  # ----------------------------------------------------------------------------
+  # Broker MQTT Eclipse Mosquitto
+  # ----------------------------------------------------------------------------
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: tcc_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883" # Porta MQTT TCP padrão (ESP32 e Backend)
+      - "9001:9001" # Porta MQTT sobre WebSockets (Dashboard Web)
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/config/passwd:/mosquitto/config/passwd:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    networks:
+      - tcc_network
+    healthcheck:
+      # Valida conectividade TCP e autenticação (bloqueando conexões anônimas)
+      test: ["CMD-SHELL", "mosquitto_pub -h localhost -p 1883 -u admin_tcc -P senha_segura_tcc_2026 -t 'healthcheck' -m 'ping' -q 0 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # ----------------------------------------------------------------------------
+  # Servidor Backend Node.js / Express
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tcc_backend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      # Garante a resolução interna DNS para o container mosquitto dentro da rede Docker
+      - MQTT_BROKER_URL=mqtt://mosquitto:1883
+      - PORT=3000
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - tcc_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/web/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+# ------------------------------------------------------------------------------
+# Redes e Volumes Persistentes
+# ------------------------------------------------------------------------------
+networks:
+  tcc_network:
+    name: tcc_network
+    driver: bridge
+
+volumes:
+  mosquitto_data:
+    name: tcc_mosquitto_data
+  mosquitto_log:
+    name: tcc_mosquitto_log
